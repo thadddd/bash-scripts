@@ -36,42 +36,25 @@ noc='\033[0m'
 
 step_1(){
     update_dist;
-    pause;
     echo -e "$blu" Installing gcc-5 and 7z.... "$noc";
-    pause;
     $inst p7zip-full p7zip-rar aptitude screen;
-    pause;
     sudo cp -f /etc/apt/sources.list /etc/apt/sources.list.bk;
     sudo cp -f -R /etc/apt/trusted.gpg.d /etc/apt/trusted.gpg.d.bk;
-    pause;
     echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | sudo tee -a /etc/apt/sources.list;
-    pause;
     echo deb http://us.archive.ubuntu.com/ubuntu/ xenial universe | sudo tee -a /etc/apt/sources.list;
-    pause;
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32;
-    pause;
     sudo apt update; 
-    pause;
     sudo apt install gcc-5 g++-5;
-    pause;
     sudo mv -f /etc/apt/sources.list.bk /etc/apt/sources.list;
     sudo mv -f -R /etc/apt/trusted.gpg.d.bk /etc/apt/trusted.gpg.d;
     sudo rm -f /etc/apt/trusted.gpg;
-    pause;
     sudo apt-key update;
-    pause;
     update_dist;
-    pause;
     echo -e "$blu" Removing old Nvidia and Cuda drivers.... "$noc";
-    pause;
     sudo nvidia-uninstall;
-    pause;
     sudo nvidia-installer --uninstall;
-    pause;
     $sapt remove --purge '^nvidia-.*';
-    pause;
     update_dist;
-    pause;
     while true; do
         echo -e "$red" Need to reboot. '\n'
         read -p "Do you want to do it now? y/n" -n 1 yn1 -r
@@ -85,34 +68,21 @@ step_1(){
 
 step_2(){
     echo -e "$blu" Creating gcc file paths.... "$noc";
-    pause;
-        sleep 3;
+        sleep 1;
     cd /opt/ || return;
-    pause;
     sudo mkdir gcc5;
-    pause;
     cd gcc5 || return;
-    pause;
     sudo ln -s /usr/bin/gcc-5 gcc;
-    pause;
     sudo ln -s /usr/bin/g++-5 g++;
-    pause;
     export PATH=/opt/gcc5:$PATH;
-    pause;
     echo -e "$blu" Blacklisting Nouveau Kernal.... "$noc";
-        sleep 3;
-    pause;
+        sleep 1;
     echo blacklist nouveau | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
-    pause;
     echo options nouveau moate && sudo apt install codiumdeset=0 | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
-    pause;
         echo -e "$ylw" Need to update initramfs "$noc";
-        pause;
     sudo update-initramfs -u;
-    pause;
     echo -e "$prp"   CHECK FOR NOUVEAU CORRECTLY BLACKLISTED  "$noc";
     lsmod | grep nouveau;
-        pause;
     while true; do
         echo -e "$red" Press Ctrl + Alt + F1 to boot into tty mode... '\n';
         read -p $'Are you ready? y/n' -n 1 -r yn2 ;
@@ -129,24 +99,16 @@ step_2(){
 
 step_3(){
     echo -e "$blu" Downloading Nvidia and Cuda versions.... "$noc";
-        sleep 3;
+        sleep 1;
     sudo service lightdm stop;
-    pause;
     sudo service gdm3 stop;
-    pause;
     sudo killall Xorg;
-    pause;
     sudo mkdir /home/nvidia;
     cd /home/nvidia || return;
-    pause;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run;
-    pause;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run;
-    pause;
     sudo sh cuda_8.0.61_375.26_linux-run --tar mxvf;
-    pause;
     sudo cp InstallUtils.pm /usr/lib/x86_64-linux-gnu/perl-base/;
-    pause;
     driver_ver;
     pause;
     sudo sh cuda_8.0.61.2_linux-run;
@@ -160,11 +122,11 @@ step_3(){
 
 step_4(){
     echo -e "$grn" Installing stuff  "$noc";
-        sleep 3;
+        sleep 1;
     update_dist;
     $inst hashcat hashcat-nvidia;
-    $inst git;
-    $inst net-tools;lightdm
+    $inst net-tools;
+    $inst lightdm;
     $inst mokutil;
     $inst build-essential;
     $inst libelf-dev;
@@ -242,7 +204,7 @@ sudo cp -f -r /etc/apt /etc/apt.bk
 sudo chmod ugo+rwx /etc/apt/sources.list -R
 sudo chmod ugo+rwx /home/ -R
 sudo apt install -y timeshift
-sudo timeshift --create --comment "before nvidia" 
+sudo timeshift --create --comment "before nvidia" --verbose
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 #   ACTUAL RUN OF PROGRAM
