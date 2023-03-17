@@ -25,7 +25,7 @@ inst='sudo apt-get install -y'
 red='\033[0;31m'
 grn='\033[0;32m'
 ylw='\033[1;33m'
-#prp='\033[0;35m'
+prp='\033[0;35m'
 #blk='\033[0;30m'
 blu='\033[0;34m'
 noc='\033[0m'
@@ -112,15 +112,19 @@ step_2(){
         pause;
     sudo update-initramfs -u;
     pause;
+    echo -e "$prp"   CHECK FOR NOUVEAU CORRECTLY BLACKLISTED  "$noc";
+    lsmod | grep nouveau;
+        pause;
     while true; do
         echo -e "$red" Press Ctrl + Alt + F1 to boot into tty mode... '\n';
-        read -p $'Are you ready? y/n' -n 1 -r yn2;
+        read -p $'Are you ready? y/n' -n 1 -r yn2 ;
+        echo -e "$noc" ;
             case $yn2 in   
                 [yY]) echo 'then you shouldnt see this';
                 menu;;
                 [nN]) echo 'fuck you then dickhole';
                 menu;;
-                *) reboot;;
+                *) menu;;
             esac
         done
 }
@@ -142,7 +146,7 @@ step_3(){
     pause;
     sudo cp InstallUtils.pm /usr/lib/x86_64-linux-gnu/perl-base/;
     pause;
-    sudo sh cuda_8.0.61_375.26_linux-run;
+    driver_ver;
     pause;
     sudo sh cuda_8.0.61.2_linux-run;
     pause;
@@ -214,6 +218,20 @@ pause(){
     while read -r -t 0.001; do :; done # dump the buffer
         echo -e "$red" Press any key to continue
             read -n1 -rsp $'OR Ctrl+C to exit...\n'"$noc"
+}
+
+driver_ver(){
+    while true; do
+        echo -e "$ylw" Which driver to install... "$noc";
+        echo -e "$blu" 1  Nvidia 390 "$noc";
+        echo -e "$blu" 2  Nvidia 375 "$noc";
+            read -r drive -n 1;
+            case $drive in 
+                1) sudo apt install ubuntu-drivers -y; sudo ubuntu-drivers install -y;;
+                2) sudo sh cuda_8.0.61_375.26_linux-run;;
+                *) "$red" WTF IS THIS "$noc"; driver_ver;;
+            esac
+        done
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
