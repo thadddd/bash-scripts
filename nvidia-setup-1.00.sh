@@ -78,7 +78,7 @@ step_2(){
     echo -e "$blu" Blacklisting Nouveau Kernal.... "$noc";
         sleep 1;
     echo blacklist nouveau | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
-    echo options nouveau moate && sudo apt install codiumdeset=0 | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
+    echo options nouveau modeset=0 | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
         echo -e "$ylw" Need to update initramfs "$noc";
     sudo update-initramfs -u;
     echo -e "$prp"   CHECK FOR NOUVEAU CORRECTLY BLACKLISTED  "$noc";
@@ -104,7 +104,8 @@ step_3(){
     sudo service gdm3 stop;
     sudo killall Xorg;
     sudo mkdir /home/nvidia;
-    cd /home/nvidia || return;
+    cd /home/cuda || return;
+    sudo apt install -y ubuntu-drivers-common;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run;
     sudo sh cuda_8.0.61_375.26_linux-run --tar mxvf;
@@ -112,8 +113,6 @@ step_3(){
     driver_ver;
     pause;
     sudo sh cuda_8.0.61.2_linux-run;
-    pause;
-    sudo rm -r /home/nvidia;
     pause;
     $inst nvidia-smi;
     pause;        
@@ -143,7 +142,7 @@ menu(){
     echo -ne "
         $red $usr $grn Installer MENU: $noc
         $ylw 1. Updating and Installing gcc-5
-        $ylw 2. Gcc install and Nouveau blacklist 
+        $ylw 2. Gcc config and Nouveau blacklist 
         $ylw 3. Download and install Nvidia and Cuda NEEDS TTY
         $ylw 4. Install support programs
         $ylw 5. Quit " "$noc"
@@ -170,10 +169,24 @@ update_dist(){
     sudo apt autoremove -y;
 }
 
+#pause(){
+#    while read -r -t 0.001; do :; done # dump the buffer
+#        echo -e "$red" Press "$grn"any "$ylw"key "$prp"to continue "$noc"
+#            read -n1 -rsp 'well'
+#}
+
 pause(){
-    while read -r -t 0.001; do :; done # dump the buffer
-        echo -e "$red" Press "$grn"any "$ylw"key "$prp"to continue "$noc"
-            read -n1 -rsp
+    while true; do
+        echo -e "$red" Do you want to continue... "$noc";
+        read -p -r 'yes or no' pauseYN
+            case $pauseYN in
+                y) break;;
+                Y) break;;
+                n) pause;;
+                N) pause;;
+                *) echo -e 'idiot'; pause;;
+            esac
+        done
 }
 
 driver_ver(){
@@ -184,11 +197,10 @@ driver_ver(){
         echo -e "$red" 3  GO BACK "$noc";
             read -r drive;
             case $drive in 
-                1) sh cuda_8.0.61_375.26_linux-run;
-                sudo apt install ubuntu-drivers-common -y; 
+                1) sudo sh cuda_8.0.61_375.26_linux-run; 
                 sudo ubuntu-drivers install; 
                 break;;
-                2) sh cuda_8.0.61_375.26_linux-run; 
+                2) sudo sh cuda_8.0.61_375.26_linux-run; 
                 break;;
                 3) break;;
                 *) "$red" WTF IS THIS "$noc"; 
