@@ -37,15 +37,15 @@ noc='\033[0m'
 step_1(){
     update_dist;
     echo -e "$blu" Installing gcc-5 and 7z.... "$noc";
-    $inst p7zip-full p7zip-rar aptitude screen;
+    $inst p7zip-full p7zip-rar aptitude screen ubuntu-drivers-common -y;
     sudo cp -f /etc/apt/sources.list /etc/apt/sources.list.bk;
     sudo cp -f -R /etc/apt/trusted.gpg.d /etc/apt/trusted.gpg.d.bk;
     echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | sudo tee -a /etc/apt/sources.list;
     echo deb http://us.archive.ubuntu.com/ubuntu/ xenial universe | sudo tee -a /etc/apt/sources.list;
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32;
     sudo apt update; 
-    sudo apt install gcc-5 g++-5;
-    sudo mv -f /etc/apt/sources.list.bk /etc/apt/sources.list;
+    sudo apt install gcc-5 g++-5 -y;
+    sudo mv -f /home/bash-scripts/sources.list.bk /etc/apt/sources.list;
     sudo mv -f -R /etc/apt/trusted.gpg.d.bk /etc/apt/trusted.gpg.d;
     sudo rm -f /etc/apt/trusted.gpg;
     sudo apt-key update;
@@ -98,22 +98,29 @@ step_2(){
 }
 
 step_3(){
+    echo "lsmod | grep nouveau";
+    pause;
     echo -e "$blu" Downloading Nvidia and Cuda versions.... "$noc";
         sleep 1;
     sudo service lightdm stop;
     sudo service gdm3 stop;
     sudo killall Xorg;
-    sudo mkdir /home/nvidia;
-    cd /home/cuda || return;
-    sudo apt install -y ubuntu-drivers-common;
+    sudo mkdir /home/cuda-8.0;
+    sudo mkdir /home/cuda-8.0/dl;
+    sudo chmod ugo+rwx /home -R;
+    cd /home/cuda-8.0/dl || return;
+    #sudo apt install -y ubuntu-drivers-common;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run;
     sudo sh cuda_8.0.61_375.26_linux-run --tar mxvf;
     sudo cp InstallUtils.pm /usr/lib/x86_64-linux-gnu/perl-base/;
-    driver_ver;
+    #driver_ver;
+    #pause;
+    sudo sh cuda_8.0.61_375.26_linux-run;
     pause;
     sudo sh cuda_8.0.61.2_linux-run;
     pause;
+    sudo aptitude build-dep nvidia-smi;
     $inst nvidia-smi;
     pause;        
     menu;
@@ -169,25 +176,12 @@ update_dist(){
     sudo apt autoremove -y;
 }
 
-#pause(){
-#    while read -r -t 0.001; do :; done # dump the buffer
-#        echo -e "$red" Press "$grn"any "$ylw"key "$prp"to continue "$noc"
-#            read -n1 -rsp 'well'
-#}
-
 pause(){
-    while true; do
-        echo -e "$red" Do you want to continue... "$noc";
-        read -p -r 'yes or no' pauseYN
-            case $pauseYN in
-                y) break;;
-                Y) break;;
-                n) pause;;
-                N) pause;;
-                *) echo -e 'idiot'; pause;;
-            esac
-        done
+    while read -r -t 0.001; do :; done # dump the buffer
+        echo -e "$red" Press "$grn"any "$ylw"key "$prp"to continue "$noc"
+            read -n1 -rsp ' '
 }
+     
 
 driver_ver(){
     while true; do
