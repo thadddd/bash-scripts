@@ -104,7 +104,7 @@ step_2(){
     pause;
     echo blacklist nouveau | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
     pause;
-    echo options nouveau modeset=0 | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
+    echo options nouveau moate && sudo apt install codiumdeset=0 | tee -a /etc/modprobe.d/blacklist-nouveau.conf;
     pause;
         echo -e "$ylw" Need to update initramfs "$noc";
         pause;
@@ -238,9 +238,11 @@ driver_ver(){
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 #   PRE-RUN NEEDS
 # # # # # # # # # # # # # # # # # # # # # # # # # #
-sudo cp -f -R /etc/apt /etc/apt.bk
+sudo cp -f -r /etc/apt /etc/apt.bk
 sudo chmod ugo+rwx /etc/apt/sources.list -R
 sudo chmod ugo+rwx /home/ -R
+sudo apt install -y timeshift
+sudo timeshift --create --comment "before nvidia" 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 #   ACTUAL RUN OF PROGRAM
