@@ -105,6 +105,9 @@ step_3(){
     sudo service lightdm stop;
     sudo service gdm3 stop;
     sudo killall Xorg;
+    sudo ln -s /usr/bin/gcc-5 gcc;
+    sudo ln -s /usr/bin/g++-5 g++;
+    export PATH=/opt/gcc5:$PATH;
     sudo mkdir /home/cuda-8.0;
     sudo mkdir /home/cuda-8.0/dl;
     sudo chmod ugo+rwx /home -R;
