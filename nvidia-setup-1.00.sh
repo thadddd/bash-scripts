@@ -41,7 +41,9 @@ step_1(){
     pause;
     $inst p7zip-full p7zip-rar aptitude screen;
     pause;
-    sudo mv -f /etc/apt/sources.list /etc/apt/sources.list.bk;
+    sudo cp -f /etc/apt/sources.list /etc/apt/sources.list.bk;
+    sudo cp -f -R /etc/apt/trusted.gpg.d /etc/apt/trusted.gpg.d.bk;
+    sudo cp -f /etc/apt/trusted.gpg /etc/apt/trusted.gpg.bk;
     pause;
     echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | sudo tee -a /etc/apt/sources.list;
     pause;
@@ -51,9 +53,11 @@ step_1(){
     pause;
     sudo apt update; 
     pause;
-    $inst gcc-5 g++-5;
+    sudo apt install gcc-5 g++-5;
     pause;
     sudo mv -f /etc/apt/sources.list.bk /etc/apt/sources.list;
+    sudo mv -f -R /etc/apt/trusted.gpg.d.bk /etc/apt/trusted.gpg.d;
+    sudo mv -f /etc/apt/trusted.gpg.bk /etc/apt/trusted.gpg;
     pause;
     sudo apt-key del 40976EAF437D05B5 3B4FE6ACC0B21F32;
     pause;
@@ -186,10 +190,9 @@ menu(){
         $ylw 2. Gcc install and Nouveau blacklist 
         $ylw 3. Download and install Nvidia and Cuda NEEDS TTY
         $ylw 4. Install support programs
-        $grn 5. QUIT
-        $red Choose now: "
-            read -r ans1
-            case $ans1 in
+        $ylw 5. Quit " "$noc"
+        read -p -r $'answer:' ans1
+      case $ans1 in
                 1) step_1; menu;;
                 2) step_2; menu;;
                 3) step_3; menu;;
