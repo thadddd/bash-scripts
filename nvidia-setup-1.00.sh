@@ -136,7 +136,8 @@ step_3(){
     pause;
     sudo killall Xorg;
     pause;
-    cd /tmp/ || return;
+    sudo mkdir /home/nvidia;
+    cd /home/nvidia || return;
     pause;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run;
     pause;
@@ -149,6 +150,8 @@ step_3(){
     driver_ver;
     pause;
     sudo sh cuda_8.0.61.2_linux-run;
+    pause;
+    sudo rm -r /home/nvidia;
     pause;
     $inst nvidia-smi;
     pause;        
@@ -208,7 +211,7 @@ update_dist(){
 pause(){
     while read -r -t 0.001; do :; done # dump the buffer
         echo -e "$red" Press "$grn"any "$ylw"key "$prp"to continue "$noc"
-            read -n1 -rsp 
+            read -n1 -rsp
 }
 
 driver_ver(){
@@ -219,10 +222,15 @@ driver_ver(){
         echo -e "$red" 3  GO BACK "$noc";
             read -r drive;
             case $drive in 
-                1) sudo apt install ubuntu-drivers-common -y; sudo ubuntu-drivers install -y;;
-                2) sudo sh cuda_8.0.61_375.26_linux-run;;
-                3) exit 0;;
-                *) "$red" WTF IS THIS "$noc"; driver_ver;;
+                1) sh cuda_8.0.61_375.26_linux-run;
+                sudo apt install ubuntu-drivers-common -y; 
+                sudo ubuntu-drivers install; 
+                break;;
+                2) sh cuda_8.0.61_375.26_linux-run; 
+                break;;
+                3) break;;
+                *) "$red" WTF IS THIS "$noc"; 
+                driver_ver;;
             esac
         done
 }
