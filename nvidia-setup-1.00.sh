@@ -43,7 +43,6 @@ step_1(){
     pause;
     sudo cp -f /etc/apt/sources.list /etc/apt/sources.list.bk;
     sudo cp -f -R /etc/apt/trusted.gpg.d /etc/apt/trusted.gpg.d.bk;
-    sudo cp -f /etc/apt/trusted.gpg /etc/apt/trusted.gpg.bk;
     pause;
     echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | sudo tee -a /etc/apt/sources.list;
     pause;
@@ -57,9 +56,7 @@ step_1(){
     pause;
     sudo mv -f /etc/apt/sources.list.bk /etc/apt/sources.list;
     sudo mv -f -R /etc/apt/trusted.gpg.d.bk /etc/apt/trusted.gpg.d;
-    sudo mv -f /etc/apt/trusted.gpg.bk /etc/apt/trusted.gpg;
-    pause;
-    sudo apt-key del 40976EAF437D05B5 3B4FE6ACC0B21F32;
+    sudo rm -f /etc/apt/trusted.gpg;
     pause;
     sudo apt-key update;
     pause;
@@ -198,7 +195,7 @@ menu(){
                 3) step_3; menu;;
                 4) step_4; menu;;
                 5) exit 0;;
-                *) echo -e "$red""Wrong Selection.""$noc"; WrongCommand;;
+                *) echo -e "$red""Wrong Selection.""$noc"; menu;;
             esac
 }
 
@@ -208,7 +205,7 @@ menu(){
 
 update_dist(){
     echo -e "$grn" Update and Upgrade in Progress "$noc";
-        sleep 3;
+        sleep 1;
     sudo apt update
     sudo apt full-upgrade -y;
     sudo apt autoremove -y;
@@ -216,8 +213,8 @@ update_dist(){
 
 pause(){
     while read -r -t 0.001; do :; done # dump the buffer
-        echo -e "$red" Press any key to continue "$noc"
-            read -n1 -rsp $'OR Ctrl+C to exit...\n'
+        echo -e "$red" Press "$grn"any "$ylw"key "$prp"to continue "$noc"
+            read -n1 -rsp 
 }
 
 driver_ver(){
@@ -225,10 +222,12 @@ driver_ver(){
         echo -e "$ylw" Which driver to install... "$noc";
         echo -e "$blu" 1  Nvidia 390 "$noc";
         echo -e "$blu" 2  Nvidia 375 "$noc";
-            read -r drive -n 1;
+        echo -e "$red" 3  GO BACK "$noc";
+            read -r drive;
             case $drive in 
-                1) sudo apt install ubuntu-drivers -y; sudo ubuntu-drivers install -y;;
+                1) sudo apt install ubuntu-drivers-common -y; sudo ubuntu-drivers install -y;;
                 2) sudo sh cuda_8.0.61_375.26_linux-run;;
+                3) exit 0;;
                 *) "$red" WTF IS THIS "$noc"; driver_ver;;
             esac
         done
@@ -237,7 +236,7 @@ driver_ver(){
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 #   PRE-RUN NEEDS
 # # # # # # # # # # # # # # # # # # # # # # # # # #
-
+sudo cp -f -R /etc/apt /etc/apt.bk
 sudo chmod ugo+rwx /etc/apt/sources.list -R
 sudo chmod ugo+rwx /home/ -R
 
