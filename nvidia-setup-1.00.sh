@@ -132,6 +132,8 @@ step_3(){
         sleep 3;
     sudo service lightdm stop;
     pause;
+    sudo service gdm3 stop;
+    pause;
     sudo killall Xorg;
     pause;
     cd /tmp/ || return;
@@ -159,15 +161,7 @@ step_4(){
     update_dist;
     $inst hashcat hashcat-nvidia;
     $inst git;
-    $inst net-tools;
-    $inst aircrack-ng;
-    $inst wifite;
-    $inst hcxdumptool;
-    $inst bully;
-    $inst macchanger;
-    $inst hcxtools;
-    $inst dkms;
-    $inst bc;
+    $inst net-tools;lightdm
     $inst mokutil;
     $inst build-essential;
     $inst libelf-dev;
@@ -188,7 +182,7 @@ menu(){
         $ylw 3. Download and install Nvidia and Cuda NEEDS TTY
         $ylw 4. Install support programs
         $ylw 5. Quit " "$noc"
-        read -p -r $'answer:' ans1
+        read -r ans1
       case $ans1 in
                 1) step_1; menu;;
                 2) step_2; menu;;
