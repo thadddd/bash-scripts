@@ -39,9 +39,7 @@ step_1(){
     pause;
     echo -e "$blu" Installing gcc-5 and 7z.... "$noc";
     pause;
-    $inst p7zip-full;
-    pause;
-    $inst p7zip-rar;
+    $inst p7zip-full p7zip-rar aptitude screen;
     pause;
     sudo mv -f /etc/apt/sources.list /etc/apt/sources.list.bk;
     pause;
@@ -51,7 +49,7 @@ step_1(){
     pause;
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32;
     pause;
-    update_dist; 
+    sudo apt update; 
     pause;
     $inst gcc-5 g++-5;
     pause;
