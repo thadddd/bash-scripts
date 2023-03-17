@@ -45,9 +45,9 @@ step_1(){
     pause;
     sudo mv -f /etc/apt/sources.list /etc/apt/sources.list.bk;
     pause;
-    echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | sudo tee -a /etc/apt/sources.list;
     pause;
-    echo deb http://us.archive.ubuntu.com/ubuntu/ xenial universe | tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu/ xenial universe | sudo tee -a /etc/apt/sources.list;
     pause;
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32;
     pause;
@@ -62,10 +62,9 @@ step_1(){
     sudo apt-key update;
     pause;
     update_dist;
-        pause;
+    pause;
     echo -e "$blu" Removing old Nvidia and Cuda drivers.... "$noc";
     pause;
-        sleep 3;
     sudo nvidia-uninstall;
     pause;
     sudo nvidia-installer --uninstall;
@@ -216,8 +215,8 @@ update_dist(){
 
 pause(){
     while read -r -t 0.001; do :; done # dump the buffer
-        echo -e "$red" Press any key to continue
-            read -n1 -rsp $'OR Ctrl+C to exit...\n'"$noc"
+        echo -e "$red" Press any key to continue "$noc"
+            read -n1 -rsp $'OR Ctrl+C to exit...\n'
 }
 
 driver_ver(){
