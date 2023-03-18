@@ -35,6 +35,7 @@ noc='\033[0m'
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 step_1(){
+    sudo cp -f -r /etc/apt /etc/apt.bk;
     update_dist;
     echo -e "$blu" Installing gcc-5 and 7z.... "$noc";
     $inst p7zip-full p7zip-rar aptitude screen ubuntu-drivers-common net-tools -y;
@@ -46,7 +47,7 @@ step_1(){
     sudo apt update; 
     sudo apt install gcc-5 g++-5 -y;
     sudo mv -f /home/bash-scripts/sources.list.bk /etc/apt/sources.list;
-    sudo mv -f -R /etc/apt/trusted.gpg.d.bk /etc/apt/trusted.gpg.d;
+    sudo mv -f /etc/apt/trusted.gpg.d.bk /etc/apt/trusted.gpg.d;
     sudo rm -f /etc/apt/trusted.gpg;
     sudo apt-key update;
     update_dist;
@@ -55,12 +56,13 @@ step_1(){
     sudo nvidia-installer --uninstall;
     $sapt remove --purge '^nvidia-.*';
     update_dist;
-    sudo timeshift --create --comments "Fishishing step 1" --tags O;
+    sudo timeshift --create --comments "Fishishing step 1";
     while true; do
         echo -ne "
             $red xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             $red     Continue to step 2? y/n
-            $red xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            $red xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            $red    "
             read -r yn1
             case $yn1 in
                 [yY]) step_2;;
@@ -87,19 +89,21 @@ step_2(){
     sudo update-initramfs -u;
     echo -e "$prp"   CHECK FOR NOUVEAU CORRECTLY BLACKLISTED  "$noc";
     lsmod | grep nouveau;
-    sudo timeshift --create --comments "Fishishing step 2" --tags O;
+    sudo timeshift --create --comments "Fishishing step 2";
     while true; do
-        echo -e "$red" Press Ctrl + Alt + F1 to boot into tty mode... '\n';
-        read -p $'Are you ready? y/n' -n 1 -r yn2 ;
-        echo -e "$noc" ;
-            case $yn2 in   
-                [yY]) echo 'then you shouldnt see this';
-                reboot;;
-                [nN]) echo 'fuck you then dickhole';
-                menu;;
-                *) menu;;
+        echo -ne "
+            $red xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            $red Continue to step 3 or Reboot y/n/r
+            $red xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            $red    "
+            read -r yn1
+            case $yn1 in
+                [yY]) step_3;;
+                [nN]) menu;;
+                [rR]) reboot;;
+                *) echo -e "Wrong answer"; menu;;
             esac
-        done
+    done 
 }
 
 step_3(){
@@ -115,35 +119,49 @@ step_3(){
     sudo mkdir /home/cuda-8.0/dl;
     sudo chmod ugo+rwx /home -R;
     cd /home/cuda-8.0/dl || return;
-    $inst ubuntu-drivers-common;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run;
     sudo sh cuda_8.0.61_375.26_linux-run --tar mxvf;
     sudo cp InstallUtils.pm /usr/lib/x86_64-linux-gnu/perl-base/;
     pause;
     sudo modprobe -r nouveau;
-    $inst nvidia-driver-390 nvidia-headless-390 nvidia-utils-390;
-    sudo modprobe -i nvidia;
+    #$inst nvidia-driver-390 nvidia-headless-390 nvidia-utils-390;
+    #sudo modprobe -i nvidia;
     pause;
-    sudo sh cuda_8.0.61_375.26_linux-run --override --toolkit;
+    sh cuda_8.0.61_375.26_linux-run;
     pause;
-    sudo sh cuda_8.0.61.2_linux-run --accept-eula;
+    sudo sh cuda_8.0.61.2_linux-run;
+    sudo modprobe -i nvidia
     pause;
+    source;
     sudo aptitude build-dep nvidia-smi;
     $inst nvidia-smi;
     pause;        
-    sudo timeshift --create --comments "Fishishing step 3" --tags O;
-    menu;
+    sudo timeshift --create --comments "Fishishing step 3";
+    while true; do
+        echo -ne "
+            $red xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            $red     Continue to step 4? y/n
+            $red xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            $red    "
+            read -r yn1
+            case $yn1 in
+                [yY]) step_4;;
+                [nN]) menu;;
+                *) echo -e "Wrong answer"; menu;;
+            esac
+    done 
 }
 
 step_4(){
     echo -e "$grn" Installing stuff  "$noc";
         sleep 1;
     update_dist;
-    sudo git clone https://github.com/hashcat/hashcat.git;
-    cd hashcat || return;
-    make;
-    make install;
+    #sudo git clone https://github.com/hashcat/hashcat.git;
+    #cd hashcat || return;
+    #make;
+    #make install;
+    $inst hashcat hashcat-nvidia;
     $inst mokutil;
     $inst build-essential;
     $inst libelf-dev;
@@ -157,7 +175,7 @@ step_4(){
 
 
 menu(){
-    sudo cp -f -r /etc/apt /etc/apt.bk;
+    clear;
     echo -ne "
         $red $usr $grn Installer MENU: $noc
         $ylw 1. Updating and Installing gcc-5
@@ -190,7 +208,7 @@ update_dist(){
 
 pause(){
     while read -r -t 0.001; do :; done # dump the buffer
-        echo -e "$red" Press "$grn"any "$ylw"key "$prp"to continue "$noc"
+        echo -e "$red" Press "$grn"any "$ylw"key "$prp"to "$blu"continue "$noc"
             read -n1 -rsp ' '
 }
      
@@ -215,6 +233,33 @@ driver_ver(){
         done
 }
 
+source(){
+    clear;
+    echo -e "$red" Remaking sources.list "$noc";
+    sudo chmod ugo+rwx /etc/apt -R;
+    rm -f /etc/apt/sources.list;
+    touch /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic main restricted | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic main restricted | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic-updates main restricted | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic-updates main restricted | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic universe | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic universe | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic-updates universe | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic-updates universe | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic multiverse | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic multiverse | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic-updates multiverse | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic-updates multiverse | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic-backports main restricted universe multiverse | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic-backports main restricted universe multiverse | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic-security main restricted | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic-security main restricted | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic-security universe | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic-security universe | sudo tee -a /etc/apt/sources.list;
+    echo deb http://us.archive.ubuntu.com/ubuntu bionic-security multiverse | sudo tee -a /etc/apt/sources.list;
+    echo deb-src http://us.archive.ubuntu.com/ubuntu bionic-security multiverse | sudo tee -a /etc/apt/sources.list;
+}
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 #   PRE-RUN NEEDS
 # # # # # # # # # # # # # # # # # # # # # # # # # #
