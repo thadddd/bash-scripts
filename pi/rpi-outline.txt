@@ -1,0 +1,28 @@
+dis=Kali, Raspian, Ubuntu, Ubuntu Server, OpenAuto, OpenWRT
+bit=32, 64
+dsk=desktop, headless
+wfi=AWUS1900, AWUS036AC, AC1L/AC3L, NinePlus 
+pur=wardriving, wifi hack, truck headunit, IOT, general purpose, wifi sniffing, 
+
+wardriving needs:
+airmon_ng
+gpsd
+rtl-sdr 
+kismet 
+bluez, bluemon
+ubertooth one
+
+
+wifi hack needs:
+wifite
+airmon-ng 
+ubertooth one
+hcxtools
+pyrite
+besside-ng
+
+
+truck headunit:
+
+
+github token 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
