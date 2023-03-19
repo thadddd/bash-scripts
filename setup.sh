@@ -15,7 +15,7 @@
 
 #usr=$(whoami)
 #dir="/home/$usr/"
-inst='$inst'
+inst='sudo apt install -y'
 suap='sudo apt'
 suag='sudo apt-get'
 su='sudo'
