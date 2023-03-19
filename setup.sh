@@ -13,9 +13,9 @@
 #   INITIAL VARIABLES NEEDED
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-usr=$(whoami)
-dir='/home/$usr/'
-inst='sudo apt install -y'
+#usr=$(whoami)
+#dir="/home/$usr/"
+inst='$inst'
 suap='sudo apt'
 suag='sudo apt-get'
 su='sudo'
@@ -26,14 +26,14 @@ upda='sudo apt update'
 #   TEXT COLORS
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-blk='\e[30m'
+#blk='\e[30m'
 red='\e[31m'
 grn='\e[32m'
 ylw='\e[33m'
 blu='\e[34m'
 mag='\e[35m'
-cyn='\e[36m'
-gry='\e[37m'
+#cyn='\e[36m'
+#gry='\e[37m'
 noc='\e[0m'
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -41,13 +41,13 @@ noc='\e[0m'
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 mainMENU(){
-    clear;
     header1;
     echo -ne "
         $red=====$noc$grn Nvidia and Cuda Setup for d101 $noc$red=====$noc
         ";
         header2;
-        echo -ne "$red========== $noc$grn     MAIN MENU  $noc$red    ===========$noc
+        echo -ne "
+        $red========== $noc$grn     MAIN MENU  $noc$red    ===========$noc
         $red==$noc$ylw 1-Update, Upgrade, and Autoremove $noc$red   ==$noc
         $red==$noc$ylw 2-Install gcc-5 g++-5             $noc$red   ==$noc
         $red==$noc$ylw 3-Purge Old Nvidia Drivers        $noc$red   ==$noc
@@ -80,20 +80,20 @@ mainMENU(){
 step_1(){
     header1;
     echo -ne "
-    $red==$noc$grn STEP 1 -$noc$ylw Update, Upgrade, Autoremove$noc$red ==$noc 
-    " ;
+        $red==$noc$grn STEP 1 -$noc$ylw Update, Upgrade, Autoremove$noc$red ==$noc 
+        ";
     header2;
     sleep 3;
     pause;
-        sudo apt update;
+        $suap update;
     header2;
-        sudo apt full-upgrade -y;
+        $suap full-upgrade -y;
     header2;
-        sudo apt autoremove -y;
+        $suap autoremove -y;
     header2;
-        sudo apt install -y p7zip-full p7zip-rar aptitude screen ubuntu-drivers-common timeshift net-tools;
+        $inst p7zip-full p7zip-rar aptitude screen ubuntu-drivers-common timeshift net-tools;
     header2;
-    sudo timeshift --create --comment "Step1 Finish";
+    $su timeshift --create --comment "Step1 Finish";
     footer1;
     pause;
 }
@@ -105,52 +105,53 @@ step_2(){
         ";
     header2;
     sleep 3;
-        sudo chmod ugo+rwx /etc/apt -R;
-        sudo cp -f /etc/apt/sources.list /etc/apt/sources.list.bk;
-        sudo cp -f /etc/apt/trusted.gpg /etc/apt/trusted.gpg.bk;
+        $su chmod ugo+rwx /etc/apt -R;
+        $su cp -f /etc/apt/sources.list /etc/apt/sources.list.bk;
+        $su cp -f /etc/apt/trusted.gpg /etc/apt/trusted.gpg.bk;
     header2;
-        echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | sudo tee -a /etc/apt/sources.list;
-        echo deb http://us.archive.ubuntu.com/ubuntu/ xenial universe | sudo tee -a /etc/apt/sources.list;
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32;
-        sudo apt-get update && sudo apt update; 
+        echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | $su tee -a /etc/apt/sources.list;
+        echo deb http://us.archive.ubuntu.com/ubuntu/ xenial universe | $su tee -a /etc/apt/sources.list;
+        $su apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32;
+        $suag update && $suap update; 
     header2;
-        sudo apt install gcc-5 g++-5 -y;
+        $inst gcc-5 g++-5;
     header2;
-        sudo cp -f /etc/apt/sources.list.bk /etc/apt/sources.list;
-        sudo cp -f /etc/apt/trusted.gpg.bk /etc/apt/trusted.gpg;
-        sudo apt-key update;
-        sudo apt-get update && sudo apt update;
+        $su cp -f /etc/apt/sources.list.bk /etc/apt/sources.list;
+        $su cp -f /etc/apt/trusted.gpg.bk /etc/apt/trusted.gpg;
+        $su apt-key update;
+        $suag update && $suap update;
     header2;
         cd /opt/ || return;
-        sudo mkdir gcc5;
+        $su mkdir gcc5;
         cd gcc5 || return;
-        sudo ln -s /usr/bin/gcc-5 gcc;
-        sudo ln -s /usr/bin/g++-5 g++;
+        $su ln -s /usr/bin/gcc-5 gcc;
+        $su ln -s /usr/bin/g++-5 g++;
         export PATH=/opt/gcc5:$PATH;
-        sudo chmod ugo+rwx /etc/modprobe.d/ -R;
+        $su chmod ugo+rwx /etc/modprobe.d/ -R;
         touch /etc/modprobe.d/blacklist-nouveau.conf;
-        echo blacklist nouveau | sudo tee -a /etc/modprobe.d/blacklist-nouveau.conf;
-        echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/blacklist-nouveau.conf;
-        sudo update-initramfs -u;
+        echo blacklist nouveau | $su tee -a /etc/modprobe.d/blacklist-nouveau.conf;
+        echo options nouveau modeset=0 | $su tee -a /etc/modprobe.d/blacklist-nouveau.conf;
+        $su update-initramfs -u;
     header2;
-        sudo timeshift --create --comments "Step2 Finsish";
+        $su timeshift --create --comments "Step2 Finsish";
         footer1;
     pause;
 }
 
 step_3(){
+    clear;
     header1;
     echo -e "
         $red==$noc$grn STEP 3 -$noc$ylw Purge Nvida drivers   4noc$red      ==$noc
     ";
     header2;
-    sudo nvidia-uninstall;
+    $su nvidia-uninstall;
     header2;
-    sudo nvidia-installer --uninstall;
+    $su nvidia-installer --uninstall;
     header2;
-    sudo apt remove --purge '^nvidia-.*';
+    $suap remove --purge '^nvidia-.*';
     header2;
-    sudo timeshift --create --comments "Step3 Finish";
+    $su timeshift --create --comments "Step3 Finish";
     footer1;
     pause;
 }
@@ -159,40 +160,41 @@ step_4(){
     header1;
     echo -e "$red==$noc$grn STEP 4 -$noc$ylw Install Nvidia and Cuda $noc$red    ==$noc";
     header2;
-    sudo service lightdm stop;
-    sudo service gdm3 stop;
-    sudo killall Xorg;
+    $su service lightdm stop;
+    $su service gdm3 stop;
+    $su killall Xorg;
     header2;
-    sudo ln -s /usr/bin/gcc-5 gcc;
-    sudo ln -s /usr/bin/g++-5 g++;
+    $su ln -s /usr/bin/gcc-5 gcc;
+    $su ln -s /usr/bin/g++-5 g++;
     export PATH=/opt/gcc5:$PATH;
-    sudo mkdir /home/cuda-8.0;
-    sudo mkdir /home/cuda-8.0/dl;
-    sudo chmod ugo+rwx /home -R;
+    $su mkdir /home/cuda-8.0;
+    $su mkdir /home/cuda-8.0/dl;
+    $su chmod ugo+rwx /home -R;
     cd /home/cuda-8.0/dl || return;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run;
     wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run;
-    sudo sh cuda_8.0.61_375.26_linux-run --tar mxvf;
-    sudo cp InstallUtils.pm /usr/lib/x86_64-linux-gnu/perl-base/;
+    $su sh cuda_8.0.61_375.26_linux-run --tar mxvf;
+    $su cp InstallUtils.pm /usr/lib/x86_64-linux-gnu/perl-base/;
     header2;
-    sudo modprobe -r nouveau;
+    $su modprobe -r nouveau;
     #$inst nvidia-driver-390 nvidia-headless-390 nvidia-utils-390;
-    #sudo modprobe -i nvidia;
+    #$su modprobe -i nvidia;
     sh cuda_8.0.61_375.26_linux-run;
     header2; sleep 2;
-    sudo sh cuda_8.0.61.2_linux-run;
-    sudo modprobe -i nvidia
-    #sudo aptitude build-dep nvidia-smi;
+    $su sh cuda_8.0.61.2_linux-run;
+    $su modprobe -i nvidia
+    #$su aptitude build-dep nvidia-smi;
     $inst nvidia-smi;
-    sudo timeshift --create --comments "Step4 Finish";
+    $su timeshift --create --comments "Step4 Finish";
     footer1;
     pause;
 }
 
 step_5(){
     header1;
-    echo -e "$red==$noc$grn STEP 5 -$noc$ylw Install Support Programs $noc$red   ==$noc 
-    ";
+    echo -e "
+        $red==$noc$grn STEP 5 -$noc$ylw Install Support Programs $noc$red   ==$noc 
+        ";
     header2;
     $upda;
     $inst hashcat hashcat-nvidia;
@@ -205,7 +207,7 @@ step_5(){
     pause;
     hashcat -b;
     pause;
-    sudo timeshift --create --comments "Step5 Finish" ;
+    $su timeshift --create --comments "Step5 Finish" ;
     footer1;
     pause;
 }
@@ -219,18 +221,27 @@ step_6(){
 
 header1(){
     clear;
-    ehco -ne "
-        $red==========================================$noc";
+    echo -ne "        $red==========================================$noc";
 }
 
 header2(){
-    ehco -ne "
-        $red==========================================$noc";
+    echo -ne "$red==========================================$noc";
 }
 
 footer1(){
-    echo -ne " $red=====$noc$ylw DONE$noc$red =====$noc"
+    echo -ne "
+    $red=====$noc$ylw DONE$noc$red =====$noc"
 }
+
+pause(){
+    while read -r -t 0.001; do :; done # dump the buffer
+        echo -e "
+        $red" Press "$grn"any "$ylw"key "$mag"to "$blu"continue "$noc"
+            read -n1 -rsp ' '
+}
+
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 #   PROGRAM
 # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+mainMENU
