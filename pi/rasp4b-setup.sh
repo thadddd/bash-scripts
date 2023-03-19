@@ -53,7 +53,7 @@
 usr=$(whoami)
 sapt='sudo apt-get'
 inst='sudo apt-get install -y'
-#dir='/home/$USER'
+#dir='/home/$usr/'
 dist=$101
 bit=$102
 vers=$103
@@ -66,37 +66,19 @@ pur3=$107
 #   TEXT COLORS
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-blk='\033[0;30m'
-BLK='\033[1;30m'
-red='\033[0;31m'
-RED='\033[1;31m'
-grn='\033[0;32m'
-GRN='\033[1;32m'
-ylw='\033[0;33m'
-YLW='\033[1;33m'
-blu='\033[0;34m'
-BLU='\033[1;34m'
-prp='\033[0;35m'
-PRP='\033[1;35m'
-cyn='\033[0;36m'
-CYN='\033[1;36m'
-gry='\033[0;37m'
-GRY='\033[1;37m'
-noc='\033[0m'
+blk='\e[0;30m'
+red='\e[0;31m'
+grn='\e[0;32m'
+ylw='\e[0;33m'
+blu='\e[0;34m'
+prp='\e[0;35m'
+cyn='\e[0;36m'
+gry='\e[0;37m'
+noc='\e[0;0m'
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 #   Functions - Menus
 # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
-
-
-
-
-
-
-
 
 menuMAIN(){
     clear;
