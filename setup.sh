@@ -4,8 +4,7 @@
 ###                                                               made by: thadddd ###
 ###                                                 http://www.github.com/thadddd/ ###
 ###                                                        Started: March 10, 2023 ###
-###                                  Current v: 1.00   Upload date: March 16, 2023 ###                        
-######################################################################################
+###                                  Current v: 1.00   Upload date: March 16, 2023 ### ######################################################################################
 
 ## Nvidia GeForce 560 Ti installer with Cuda 8.0 on Ubuntu Server 20.04.3
 
@@ -20,7 +19,7 @@ suap='sudo apt'
 suag='sudo apt-get'
 su='sudo'
 upda='sudo apt update'
-line='\n'
+line='printf'
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -98,6 +97,7 @@ step_1(){
     $line;
         $inst p7zip-full p7zip-rar aptitude screen ubuntu-drivers-common timeshift net-tools;
         $line;
+            $inst build-essential;
     header2;
     $line;
     $su timeshift --create --comment "Step1 Finish";
@@ -212,7 +212,6 @@ step_5(){
     $upda;
     $inst hashcat hashcat-nvidia;
     $inst mokutil;
-    $inst build-essential;
     $inst libelf-dev;
     $inst wireshark;
     $inst hcxtools;
@@ -234,7 +233,7 @@ step_6(){
 
 header1(){
     clear;
-    echo -ne "        $red==========================================$noc";
+    echo -ne "$red==========================================$noc";
 }
 
 header2(){
