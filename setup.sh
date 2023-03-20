@@ -20,7 +20,7 @@ suap='sudo apt'
 suag='sudo apt-get'
 su='sudo'
 upda='sudo apt update'
-nwln='echo " "'
+line='\n'
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -83,22 +83,23 @@ step_1(){
     echo -ne "
         $red==$noc$grn STEP 1 -$noc$ylw Update, Upgrade, Autoremove$noc$red ==$noc 
         ";
-        nwln;
+        $line;
     header2;
+    $line;
     sleep 3;
     pause;
-    nwln;
+    $line;
         $suap update;
     header2;
         $suap full-upgrade -y;
     header2;
         $suap autoremove -y;
     header2;
-    nwln;
+    $line;
         $inst p7zip-full p7zip-rar aptitude screen ubuntu-drivers-common timeshift net-tools;
-        nwln;
+        $line;
     header2;
-    nwln;
+    $line;
     $su timeshift --create --comment "Step1 Finish";
     footer1;
     pause;
@@ -110,28 +111,28 @@ step_2(){
         $red==$noc$grn STEP 2 -$noc$ylw Install Some Crap        $noc$red   ==$noc
         ";
     header2;
-    nwln;
+    $line;
     sleep 3;
         $su chmod ugo+rwx /etc/apt -R;
         $su mv -f sources.list.bk /etc/apt/sources.list.bk;
         $su cp -f /etc/apt/trusted.gpg /etc/apt/trusted.gpg.bk;
     header2;
-    nwln;
+    $line;
         echo deb http://us.archive.ubuntu.com/ubuntu/ xenial main | $su tee -a /etc/apt/sources.list;
         echo deb http://us.archive.ubuntu.com/ubuntu/ xenial universe | $su tee -a /etc/apt/sources.list;
         $su apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32;
         $suag update && $suap update; 
     header2;
-    nwln;
+    $line;
         $inst gcc-5 g++-5;
     header2;
-    nwln;
+    $line;
         $su cp -f /etc/apt/sources.list.bk /etc/apt/sources.list;
         $su cp -f /etc/apt/trusted.gpg.bk /etc/apt/trusted.gpg;
         $su apt-key update;
         $suag update && $suap update;
     header2;
-    nwln;
+    $line;
         cd /opt/ || return;
         $su mkdir gcc5;
         cd gcc5 || return;
@@ -144,7 +145,7 @@ step_2(){
         echo options nouveau modeset=0 | $su tee -a /etc/modprobe.d/blacklist-nouveau.conf;
         $su update-initramfs -u;
     header2;
-    nwln;
+    $line;
         $su timeshift --create --comments "Step2 Finsish";
         footer1;
     pause;
@@ -237,7 +238,6 @@ header1(){
 }
 
 header2(){
-    nwln;
     echo -ne "$red==========================================$noc";
     echo " ";
     pause;
@@ -249,10 +249,12 @@ footer1(){
 }
 
 pause(){
+    $line;
     while read -r -t 0.001; do :; done # dump the buffer
         echo -e "
         $red" Press "$grn"any "$ylw"key "$mag"to "$blu"continue "$noc"
-            read -n1 -rsp ' '
+            read -n1 -rsp ' ';
+    $line;
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
