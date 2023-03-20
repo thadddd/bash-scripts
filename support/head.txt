@@ -38,3 +38,255 @@ $red==========================================$noc
 $red=====$noc$red   Step 2 -$noc$ylw Install Some Crap$noc$grn   =====$noc
 $red==========================================$noc
 
+*********************************************************************************************************
+*********************************************************************************************************
+
+0
+
+
+These are the steps I came up with. (See comments and links posted in the original question for more details on the inspiration.)
+
+First, verify that your GPU card is recognized
+
+lspci | grep -i nvidia
+
+05:00.0 VGA compatible controller: NVIDIA Corporation GF100GL [Tesla C2050 / C2070] (rev a3)
+
+Then, open your apt sources
+
+sudo nano /etc/apt/sources.list
+
+Add the xenial repository at the end, save and close.
+
+deb http://us.archive.ubuntu.com/ubuntu/ xenial main
+
+deb http://us.archive.ubuntu.com/ubuntu/ xenial universe
+
+Update apt lists (you might need first the manual addition of the key)
+
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5 3B4FE6ACC0B21F32
+
+sudo apt update
+
+Install gcc-5 and g++-5
+
+sudo apt install gcc-5 g++-5
+
+Remove xenial from your apt sources, save and close.
+
+sudo nano /etc/apt/sources.list
+
+Update apt lists
+
+sudo apt update
+
+Potentially remove any old remnants of NVIDIA drivers, maybe even restart inbetween. (Careful as this may let you only with ssh or failsafe terminal access.). This step is not needed if you only want to install the toolkit from runfile (v375) and not the matching-version driver.
+
+sudo nvidia-uninstall
+
+sudo nvidia-installer --uninstall
+
+sudo apt-get remove --purge '^nvidia-.*'
+
+sudo reboot
+
+sudo apt-get autoremove
+
+Create a directory with links to gcc5 and g++5 and put it first thing on the PATH
+
+cd /opt/
+
+sudo mkdir gcc5
+
+cd gcc5
+
+sudo ln -s /usr/bin/gcc-5 gcc
+
+sudo ln -s /usr/bin/g++-5 g++
+
+export PATH=/opt/gcc5:$PATH
+
+Download the CUDA 8 runfile from https://developer.nvidia.com/cuda-80-ga2-download-archive
+
+cd /tmp/
+
+wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run
+
+wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run
+
+Extract it in order to copy the InstallUtils to the perl path
+
+sh cuda_8.0.61_375.26_linux-run --tar mxvf
+
+sudo cp InstallUtils.pm /usr/lib/x86_64-linux-gnu/perl-base/
+
+A cleaner step for the previous statement is described here
+
+Kill your X-server (this is only needed if you want to install the driver v375 from the runfile, otherwise install the v390 via sudo ubuntu-drivers install)
+
+sudo service lightdm stop
+
+sudo killall Xorg
+
+Run the installer, answer yes to everything (answer no in the proper question if you do not want to install the driver)
+
+sh cuda_8.0.61_375.26_linux-run
+
+I got
+
+Driver:   Installed
+Toolkit:  Installed in /usr/local/cuda-8.0
+Samples:  Installed in /home/user
+Apply the cuBLAS patch
+
+sudo sh cuda_8.0.61.2_linux-run
+
+Verify that nouveau drivers are correctly blacklisted
+
+lsmod | grep nouveau
+
+Export nvcc to PATH
+
+PATH=$PATH:/usr/local/cuda-8.0/bin
+
+And you will end up with:
+
+nvcc --version
+
+nvcc: NVIDIA (R) Cuda compiler driver
+
+Copyright (c) 2005-2016 NVIDIA Corporation
+
+Built on Tue_Jan_10_13:22:03_CST_2017
+
+Cuda compilation tools, release 8.0, V8.0.61
+
+and, if you chose to install the runfile driver:
+
+nvidia-smi
+
+NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.
+
+Because of
+
+dkms status
+
+nvidia/375.26: added
+
+sudo dkms remove nvidia/375.26 --all
+
+sudo dkms install nvidia/375.26 -k $(uname -r)
+
+Error! Bad return status for module build on kernel: 5.15.0-56-generic (x86_64). Consult /var/lib/dkms/nvidia/375.26/build/make.log for more information.
+
+The logfile make.log:
+
+/var/lib/dkms/nvidia/375.26/build/common/inc/nv-mm.h:86:42: error: passing argument 1 of ‘get_user_pages_remote’ from incompatible pointer type [-Werror=incompatible-pointer-types]
+
+/var/lib/dkms/nvidia/375.26/build/common/inc/nv-linux.h:98:10: fatal error: asm/kmap_types.h: No such file or directory
+
+Go then to samples:
+
+cd ~/NVIDIA_CUDA-8.0_Samples
+
+Hand-hacking is needed for a system header file, at line 37, after the definition of __HAVE_FLOAT128
+
+sudo nano /usr/include/x86_64-linux-gnu/bits/floatn.h
+
+#if CUDART_VERSION
+
+#undef __HAVE_FLOAT128
+
+#define __HAVE_FLOAT128 0
+
+#endif
+
+Finally compile the samples
+
+make
+
+Run any desired example
+
+./deviceQuery/deviceQuery
+
+EDIT: With the following (hacky quick) patch on /usr/src/nvidia-375.26, inspired from the NVIDA openGPU kernel as well as forum posts elsewhere, I was able to modprobe and run nvidia-smi. I disabled some things just in order to get it to compile, I need to check if these have any side effects and need more careful handling.
+
+Mon Dec  5 12:54:10 2022       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 375.26                 Driver Version: 375.26                    |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  Tesla C2070         Off  | 0000:05:00.0     Off |                  Off |
+| 30%   58C    P0    N/A /  N/A |      0MiB /  6066MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID  Type  Process name                               Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+1_Utilities/deviceQuery/deviceQuery 
+1_Utilities/deviceQuery/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "Tesla C2070"
+  CUDA Driver Version / Runtime Version          8.0 / 8.0
+  CUDA Capability Major/Minor version number:    2.0
+  Total amount of global memory:                 6066 MBytes (6361120768 bytes)
+  (14) Multiprocessors, ( 32) CUDA Cores/MP:     448 CUDA Cores
+  GPU Max Clock rate:                            1147 MHz (1.15 GHz)
+  Memory Clock rate:                             1494 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 786432 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65535), 3D=(2048, 2048, 2048)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 32768
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1536
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (65535, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 5 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 8.0, CUDA Runtime Version = 8.0, NumDevs = 1, Device0 = Tesla C2070
+Result = PASS
+EDIT2: Of course, this whole process messed up with my display graphics card (second NVIDIA GPU), that was installed alongside it. If I installed the recommended nvidia drivers via ubuntu-drivers devices, it removed my manually installed driver. If I didn't do anything, it was left unclaimed, with this dmesg error:
+
+NVRM: The NVIDIA GeForce 9400 GT GPU installed in this system is
+NVRM:  supported through the NVIDIA 340.xx Legacy drivers. Please
+NVRM:  visit http://www.nvidia.com/object/unix.html for more
+NVRM:  information.  The 375.26 NVIDIA driver will ignore
+NVRM:  this GPU.  Continuing probe...
+If I whitelisted nouveau, then the computing GPU did not work any more. Finally, the solution was to leave nouveau blacklisted, without adding nomodeset, then modprobing nouveau at startup via crontab, that would find the unclaimed GPU. I also had to delete first the xorg.conf file. Now I have the display GPU with nouveau and the computing GPU with the NVIDIA driver. Pheew.
+
+Disable options nomodeset in conf file by commenting second line
+
+sudo nano /etc/modprobe.d/nvidia-installer-disable-nouveau.conf
+
+Enable nouveau after booting and loading NVIDIA by adding at the end the modprobe
+
+sudo nano /etc/crontab
+
+@reboot     root   /sbin/modprobe nouveau
+
+EDIT3: If you are OK with having a CUDA runtime version (8.0) different from the driver version (9.1), then things get much easier and you do not need to do this kernel patching. You just do sudo ubuntu-drivers install (uninstall first your custom driver if you did the steps before, uncomment the nomodeset option in modprobe-conf file), and when installing CUDA via the runfile, you just install the toolkit, not the driver. DeviceQuery will return:
