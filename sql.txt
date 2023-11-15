@@ -1,0 +1,14 @@
+sudo -i 
+apt update && apt upgrade
+lsb_release -a
+systemctl enable apache2
+service apache2 restart
+service apache2 status
+systemctl restart mariadb
+systemctl status mariadb
+systemctl restart mysql.service
+systemctl status mysql.service
+systemctl status php7.4-fpm
+
+http://localhost/phpmyadmin
+http://localhost
